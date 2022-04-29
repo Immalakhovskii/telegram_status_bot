@@ -17,11 +17,11 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_TIME = 600
+RETRY_TIME = 10
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
-HOMEWORK_STATUSES = {
+HOMEWORK_VERDICTS = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
@@ -30,8 +30,11 @@ HOMEWORK_STATUSES = {
 
 def send_message(bot, message):
     """Фунцкция отправки сообщений."""
-    bot.send_message(TELEGRAM_CHAT_ID, message)
-    logger.info(f'Отправлено сообщение: "{message}"')
+    try:
+        bot.send_message(TELEGRAM_CHAT_ID, message)
+        logger.info(f'Отправлено сообщение: "{message}"')
+    except Exception as error:
+        logger.error(f'Ошибка при отправке сообщения: {error}')
 
 
 def get_api_answer(current_timestamp):
@@ -71,9 +74,9 @@ def parse_status(homework):
     """Получение данных о последней домашней работе."""
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
-    if homework_status not in HOMEWORK_STATUSES.keys():
+    if homework_status not in HOMEWORK_VERDICTS.keys():
         raise KeyError('Неизвестный статус домашней работы')
-    verdict = HOMEWORK_STATUSES[homework_status]
+    verdict = HOMEWORK_VERDICTS[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
@@ -96,7 +99,6 @@ def main():
                 send_message(bot, message)
             else:
                 logger.debug('Статус домашки не менялся')
-            time.sleep(RETRY_TIME)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
@@ -104,7 +106,10 @@ def main():
             if message != previous_message:
                 send_message(bot, message)
                 previous_message = message
+
+        finally:
             time.sleep(RETRY_TIME)
+
     else:
         message = 'Недоступны токены окружения'
         logger.critical(message)
