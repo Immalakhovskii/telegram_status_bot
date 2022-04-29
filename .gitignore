@@ -150,3 +150,7 @@ static/
 posts/static/
 media/
 
+# Файлы-помойки.py
+dump.py
+dump2.py
+dump3.py
