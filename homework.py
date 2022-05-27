@@ -108,7 +108,7 @@ def main():
                 previous_message = message
 
         finally:
-            current_timestamp = response.get('current_date')
+            current_timestamp = int(time.time())
             time.sleep(RETRY_TIME)
 
     else:
