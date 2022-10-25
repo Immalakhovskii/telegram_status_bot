@@ -8,7 +8,7 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-import exceptions
+from exceptions import MissingTokens, IncorrectHTTPStatus
 
 load_dotenv()
 
@@ -44,18 +44,14 @@ def get_api_answer(current_timestamp):
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
         if response.status_code == HTTPStatus.OK:
             return response.json()
-        else:
-            message = (
-                'Practicum API endpoint is not available, '
-                f'server response code: {response.status_code}'
-            )
-            logger.error(message)
-            raise exceptions.IncorrectHTTPStatus(message)
 
-    except Exception as error:
-        logger.error(
-            f'Error occurred during request to Practicum API: {error}'
+    except IncorrectHTTPStatus:
+        message = (
+            'Practicum API endpoint is not available, '
+            f'server response code: {response.status_code}'
         )
+        logger.error(message)
+        raise IncorrectHTTPStatus(message)
 
 
 def check_response(response):
@@ -116,7 +112,7 @@ def main():
     else:
         message = 'Environment tokens are not available'
         logger.critical(message)
-        raise exceptions.MissingTokens(message)
+        raise MissingTokens(message)
 
 
 if __name__ == '__main__':
