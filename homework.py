@@ -40,12 +40,10 @@ def send_message(bot, message):
 def get_api_answer(current_timestamp):
     """Function for receiving responses from Practicum API."""
     params = {'from_date': current_timestamp}
-    try:
-        response = requests.get(ENDPOINT, headers=HEADERS, params=params)
-        if response.status_code == HTTPStatus.OK:
-            return response.json()
-
-    except IncorrectHTTPStatus:
+    response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+    if response.status_code == HTTPStatus.OK:
+        return response.json()
+    else:
         message = (
             'Practicum API endpoint is not available, '
             f'server response code: {response.status_code}'
