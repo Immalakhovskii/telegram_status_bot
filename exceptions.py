@@ -1,10 +1,10 @@
 class IncorrectHTTPStatus(Exception):
-    """Кастомная ошибка на некорретный статус ответа API Практикума."""
+    """Custom error for incorrect answer from Practicum API."""
 
     pass
 
 
 class MissingTokens(Exception):
-    """Кастомная ошибка на отсутствие токенов."""
+    """Custom error for missing env tokens."""
 
     pass
